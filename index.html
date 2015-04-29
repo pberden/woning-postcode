@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <meta content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0' name='viewport'>
+
+  <title>Woningvoorraad per postcodegebied</title>
+
+  <script src='../d3/d3.js' type='text/javascript'></script>
+  <script src='assets/js/crossfilter.js' type='text/javascript'></script>
+  <script src='assets/js/dc.js' type='text/javascript'></script>
+  <script src='assets/js/jquery-1.9.1.min.js' type='text/javascript'></script>
+  <script src='assets/js/bootstrap.min.js' type='text/javascript'></script>
+
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link href='assets/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+  <link href='assets/css/dc.css' rel='stylesheet' type='text/css'>
+
+  <style type="text/css">
+    #loading {
+      position: absolute;
+      width: 220px;
+      height: 19px;
+      top: 50%;
+      left: 50%;
+      margin: -10px 0 0 -110px;
+      z-index: 20001;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="loading">
+  <div class="loading-indicator">
+    <div class="progress progress-striped active">
+      <div class="progress-bar progress-bar-info" style="width: 100%"></div>
+    </div>
+  </div>
+</div>
+
+<div class='container' id='main-container'>
+<div class='content'>
+<div class='container' style='font: 12px sans-serif;'>
+
+  <div class='row'>
+    <div class='span12'>
+      <h3>Woningvoorraad op 1 januari 2014 per 4-cijferig postcodegebied</h3>
+      <div class='row'>
+        <div class='pie-graph span4' id='dc-type-chart'>
+        <h4>Woningtype</h4>
+        </div>
+        <div class='pie-graph span4' id='dc-opp-chart'>
+        <h4>Oppervlakte</h4>
+        </div>    
+        <div class='pie-graph span4' id='dc-bouwjaar-chart'>
+        <h4>Bouwjaar</h4>
+        </div>    
+      </div>
+    </div>
+  </div>
+
+  <div class='row'>
+    <div class='span12' id='dc-pc4-bar-chart'>
+      <h4>Woningen per postcode</h4>
+    </div>
+  </div>
+
+<!--   <div class='row'>
+  <div class='pie-graph span12'>
+      <table class='table table-hover' id='dc-table-graph'>
+        <thead>
+          <tr class='header'>
+            <th>Postcode</th>
+            <th>Woningtype</th>
+            <th>Oppervlakte</th>
+            <th>Bouwjaar</th>
+            <th>Aantal</th>
+          </tr>
+        </thead>
+      </table>
+  </div>
+  </div> -->
+
+<H5>Generated with 
+  <a href="http://nickqizhu.github.io/dc.js/">dc.js</a>,
+  <a href="http://square.github.io/crossfilter/">crossfilter</a>, 
+  <a href="http://d3js.org/">d3.js</a> and 
+  <a href="http://twitter.github.io/bootstrap/">bootstrap</a>.
+</H5>
+<H5>By
+  <a href="http://www.twitter.com/pberden" >Paul Berden</a>
+</H5>
+<p>Data via <a href="http://www.cbs.nl/nl-NL/menu/themas/bouwen-wonen/publicaties/artikelen/archief/2015/veel-kleine-particuliere-huurwoningen-in-amsterdamse-pijphtm.htm">CBS</a>.</p>
+
+</div>
+</div>
+</div>
+  
+<script>
+$("#sidebar-loading").addClass("active");
+
+// load data from a csv file
+d3.csv("data/data.csv", function (data) {
+  
+  data.forEach(function(d) {
+    d.aantal = +d.aantal;
+  });
+
+  var pc4BarChart = dc.barChart("#dc-pc4-bar-chart");
+  var typeChart = dc.rowChart("#dc-type-chart");
+  var oppChart = dc.rowChart("#dc-opp-chart");
+  var bouwjaarChart = dc.rowChart("#dc-bouwjaar-chart");
+  // var dataTable = dc.dataTable("#dc-table-graph");
+
+  var facts = crossfilter(data);  // Gets our 'facts' into crossfilter
+
+  /******************************************************
+  * Create the Dimensions                               *
+  ******************************************************/
+
+  // for pc4
+  var pc4Value = facts.dimension(function (d) {return d.pc4;});
+  var pc4ValueGroupSum = pc4Value.group()
+    .reduceSum(function(d) { return d.aantal; });
+
+  // for type
+  var typeValue = facts.dimension(function (d) {return d.type;});
+  var typeValueGroupSum = typeValue.group()
+    .reduceSum(function(d) { return d.aantal; });
+
+  // for opp
+  var oppValue = facts.dimension(function (d) {return d.opp;});
+  var oppValueGroupSum = oppValue.group()
+    .reduceSum(function(d) { return d.aantal; });
+
+  // for bouwjaar
+  var bouwjaarValue = facts.dimension(function (d) {return d.bouwjaar;});
+  var bouwjaarValueGroupSum = bouwjaarValue.group()
+    .reduceSum(function(d) { return d.aantal; });
+
+  // // Create dataTable dimension
+  // var postcodeDimension = facts.dimension(function (d) {
+  //   return d.pc4;
+  // });
+
+  /***************************************
+  *   Create the Visualisations   *
+  ***************************************/
+
+  // pc4 Bar Chart Summed
+  pc4BarChart.width(960)
+    .height(150)
+    .margins({top: 10, right: 10, bottom: 20, left: 40})
+    .dimension(pc4Value) // the values across the x axis
+    .group(pc4ValueGroupSum) // the values on the y axis
+  .transitionDuration(500)
+    .centerBar(true)  
+  .gap(21) // bar width Keep increasing to get right then back off.
+  .x(d3.scale.linear().domain(d3.extent(data, function(d) { return d.pc4; })))
+  .elasticY(true)
+  .xAxis().tickFormat(function(v) {return v;}); 
+
+  var rowMargins = {top: 5, left: 10, right: 20, bottom: 40}
+
+  // Type Row Chart
+  typeChart.width(320)
+    .height(300)
+    .margins(rowMargins)
+    .dimension(typeValue)
+    .group(typeValueGroupSum)
+    .label(function (d) {
+        return d.key.split('. ')[1];
+    })
+    .elasticX(true)
+    .xAxis().ticks(4);
+
+  // Opp Row Chart
+  oppChart.width(320)
+    .height(300)
+    .margins(rowMargins)
+    .dimension(oppValue)
+    .group(oppValueGroupSum)
+    .label(function (d) {
+        return d.key.split('. ')[1];
+    })
+    .elasticX(true)
+    .xAxis().ticks(4);
+
+  // Bouwjaar Row Chart
+  bouwjaarChart.width(320)
+    .height(300)
+    .margins(rowMargins)
+    .dimension(bouwjaarValue)
+    .group(bouwjaarValueGroupSum)
+    .label(function (d) {
+        return d.key.split('. ')[1];
+    })
+    .elasticX(true)
+    .xAxis().ticks(4);
+
+  // // Table with the data
+  // dataTable.width(960).height(800)
+  //   .dimension(postcodeDimension)
+  // .group(function(d) { return "Lijst van alle data behorende bij de filters" })
+  // .size(10)
+  //   .columns([
+  //     function(d) { return d.pc4; },
+  //     function(d) { return d.type; },
+  //     function(d) { return d.opp; },
+  //     function(d) { return d.bouwjaar; },
+  //     function(d) { return d.aantal; }
+  //   ])
+  //   .sortBy(function(d){ return d.pc4; })
+  //   .order(d3.ascending);
+
+/****************************
+* Step6: Render the Charts  *
+****************************/
+      
+  dc.renderAll();
+
+  $("#loading").hide();
+  
+});
+//Analytics
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-41242925-1', 'bourlo.net');
+ga('send', 'pageview');
+</script>
+    
+</body>
+</html>
