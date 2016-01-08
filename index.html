@@ -5,16 +5,8 @@
   <meta content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0' name='viewport'>
 
   <title>Woningvoorraad per postcodegebied</title>
-
-  <script src='../d3/d3.js' type='text/javascript'></script>
-  <script src='assets/js/crossfilter.js' type='text/javascript'></script>
-  <script src='assets/js/dc.js' type='text/javascript'></script>
-  <script src='assets/js/jquery-1.9.1.min.js' type='text/javascript'></script>
-  <script src='assets/js/bootstrap.min.js' type='text/javascript'></script>
-
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-  <link href='assets/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
-  <link href='assets/css/dc.css' rel='stylesheet' type='text/css'>
+  <link href="libs/bootstrap/bootstrap.min.css"  rel="stylesheet" type='text/css'>
+  <link href='libs/dcjs/dc.css' rel='stylesheet' type='text/css'>
 
   <style type="text/css">
     #loading {
@@ -65,23 +57,7 @@
       <h4>Woningen per postcode</h4>
     </div>
   </div>
-
-<!--   <div class='row'>
-  <div class='pie-graph span12'>
-      <table class='table table-hover' id='dc-table-graph'>
-        <thead>
-          <tr class='header'>
-            <th>Postcode</th>
-            <th>Woningtype</th>
-            <th>Oppervlakte</th>
-            <th>Bouwjaar</th>
-            <th>Aantal</th>
-          </tr>
-        </thead>
-      </table>
-  </div>
-  </div> -->
-
+  
 <H5>Generated with 
   <a href="http://nickqizhu.github.io/dc.js/">dc.js</a>,
   <a href="http://square.github.io/crossfilter/">crossfilter</a>, 
@@ -96,7 +72,13 @@
 </div>
 </div>
 </div>
-  
+
+  <script src='libs/jquery/jquery.min.js' type='text/javascript'></script>
+  <script src='libs/bootstrap/bootstrap.min.js' type='text/javascript'></script>
+  <script src='libs/crossfilter/crossfilter.min.js' type='text/javascript'></script>
+  <script src='libs/d3/d3.min.js' type='text/javascript'></script>
+  <script src='libs/dcjs/dc.min.js' type='text/javascript'></script>
+
 <script>
 $("#sidebar-loading").addClass("active");
 
